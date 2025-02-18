@@ -1,6 +1,17 @@
 const pool = require('../database/config');
 
 
+async function getAllTasks(request, response) {
+    try {
+        const [tasks] = await pool.query("SELECT * FROM tasks");
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify(tasks));
+    } catch (error) {
+        response.writeHead(500, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "Erro ao buscar tarefas", error }));
+    }
+}
+
 async function createTask(request, response) {
     try {
         let body = "";
@@ -31,4 +42,4 @@ async function createTask(request, response) {
     }
 }
 
-module.exports = { createTask };
+module.exports = { getAllTasks, createTask };
