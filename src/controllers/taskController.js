@@ -3,7 +3,7 @@ const pool = require('../database/config');
 
 async function getAllTasks(request, response) {
     try {
-        const [tasks] = await pool.query("SELECT * FROM tasks");
+        const [tasks] = await pool.query("SELECT uuid, title, description, status, created_at, updated_at FROM tasks");
         response.writeHead(200, { "Content-Type": "application/json" });
         response.end(JSON.stringify(tasks));
     } catch (error) {
