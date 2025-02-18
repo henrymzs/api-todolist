@@ -72,9 +72,139 @@ const pool = mysql.createPool({
 });
 module.exports = pool;
 ```
+
+### Modelagem no banco de dados 
+Tabela de Tarefas (tasks):
+- id(INT auto_increment) -> Para buscas rápidas no banco.
+- uuid (VARCHAR) -> Para exposição segura de identificadores na API
+- title (VARCHAR) -> Título da tarefa
+- description(TEXT) -> Descrição detalhada
+- status(ENUM) -> Exemplo: "pendente", "em andamento", "concluído"
+- create_at(TIMESTAMP) → Data de criação.
+- updated_at (TIMESTAMP) → Atualiza automaticamente quando editado
+se futuramente adicionar usuários, pensei em criar uma tabela 'users' e relacionar com 'tasks' via 'user_id'
+
+### async function?
+Uma async function (função assíncrona) é uma função em JavaScript que permite lidar com operações assíncronas, como requisições a um banco de dados ou chamadas a APIs externas, sem bloquear o fluxo do código.
+
+Ela funciona junto com a palavra-chave await, que pausa a execução da função até que a operação assíncrona termine, sem travar o restante da aplicação.
+- Exemplo básico de função assincrona
+```
+async function exemplo() {
+    return "Olá, mundo!";
+}
+
+exemplo().then(console.log); // Saída: "Olá, mundo!"
+
+```
+- Como funciona async/await?
+Em vez de usar .then(), podemos usar await para esperar que uma operação assíncrona termine antes de continuar:
+```
+async function buscarDados() {
+    console.log("Buscando dados...");
+    
+    const resposta = await fetch("https://jsonplaceholder.typicode.com/todos/1");
+    const dados = await resposta.json();
+    
+    console.log("Dados recebidos:", dados);
+}
+
+buscarDados();
+console.log("Executando outras coisas...");
+```
+
+### Promise?
+Uma Promise é um objeto em JavaScript que representa uma operação assíncrona que pode:
+
+Ser resolvida (fulfilled) → A operação foi concluída com sucesso.
+Ser rejeitada (rejected) → Algo deu errado.
+Estar pendente (pending) → Ainda não terminou.
+Ela é usada para lidar com tarefas assíncronas, como:
+✅ Fazer requisições HTTP
+✅ Ler arquivos
+✅ Consultar banco de dados
+✅ Esperar por eventos
+```
+const minhaPromise = new Promise((resolve, reject) => {
+    let sucesso = true;
+
+    setTimeout(() => {
+        if (sucesso) {
+            resolve("✅ Deu certo!");
+        } else {
+            reject("❌ Algo deu errado.");
+        }
+    }, 2000);
+});
+
+console.log(minhaPromise);
+
+```
+🔹 Explicação:
+
+Criamos uma Promise que espera 2 segundos (setTimeout).
+Se sucesso = true, chamamos resolve().
+Se sucesso = false, chamamos reject().
+No início, minhaPromise está no estado pending. Depois de 2 segundos, ela vira fulfilled ou rejected.
+
+Como usar async/await com Promises?
+Em vez de .then() e .catch(), podemos usar async/await para facilitar a leitura:
+
+ ```
+async function executarPromise() {
+    try {
+        const resultado = await minhaPromise;
+        console.log(resultado);
+    } catch (erro) {
+        console.log(erro);
+    } finally {
+        console.log("🕒 Processo finalizado.");
+    }
+}
+
+executarPromise();
+
+```
+
+🔹 Explicação:
+
+then(resultado) → Executa se a Promise for resolvida.
+catch(erro) → Captura erros, se a Promise for rejeitada.
+finally() → Executa sempre, independente do resultado.
+
+
+ ```
+
+request.on("data", (chunk) => {
+    body += chunk.toString();
+});
+
+```
+
+O que faz?
+
+Como os dados da requisição podem vir em partes (chunk), usamos um evento on("data") para capturar esses pedaços.
+Cada pedaço (chunk) é adicionado à variável body.
+chunk.toString() transforma os bytes recebidos em texto legível.
+
 #### 🎯 Benefícios do Pool de Conexões
 - ✅ Reutiliza conexões abertas, evitando a sobrecarga de criar novas conexões a todo momento.
 
 - ✅ Melhora a escalabilidade, pois permite que várias requisições utilizem conexões já existentes.
 
 - ✅ Controla o número de conexões ativas, evitando que o banco fique sobrecarregado.
+
+# Observação 
+### Durante o projeto mudei e comecei a utilizar o wsl com Debian, consegui baixar e configurar para utilizar ele e construir meus projetos, so que inicialmente tinha iniciado o projeto no windows e tive que continuar aqui, entrei no repositorio, dei o git clone e comecei a codar, so não lembrava do rebase, quando fui fazer o push, tinha linhas de codigo que estava diferente do local para o remoto e precisei fazer o rebase e no codigo aparecia assim 
+```
+<<<<<<< HEAD
+    "dev": "nodemon server.js"
+=======
+    "dev": "nodemon src/server.js"
+>>>>>>> f6bde34 (feat: adiciona criar tasks e rota)
+```
+
+### fiquei sem saber oque fazer, não sabia se apagava apenas a linha de codigo que eu nao queria e deixava o resto, se era para apagar tudo e deixar apenas a linha que eu queria e por tentativa e erro fiz isso mas continua com erro nas pastas e presumi que esta forma estava errada, com pressa e querendo resolver logo perguntei ao ChatGPT e ele disse que era apenas para deixar a linha que eu queria, fiz isso mesmo com a pasta ficando vermelha indicando que tivesse erro mas segui e no final deu certo, foi a primeira vez que fiz um rebase e algo que parecia tao amedrontador que podia quebrar tudo agora parece tao besta, ou talvez o problema que tive foi besta e a resolução besta e possa ter coisas mais complicadas, enfim resolvendo um problema de cada vez e aprendendo com eles. 
+
+
+

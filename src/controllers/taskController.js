@@ -25,7 +25,7 @@ async function createTask(request, response) {
             response.writeHead(201, { "Content-Type": "application/json" });
             response.end(JSON.stringify({ id: result.insertId, title, description, status }));
         });
-    } catch (error) {
+    } catch (error) { 
         response.writeHead(500, { "Content-Type": "application/json" });
         response.end(JSON.stringify({ message: "Erro ao criar tarefa", error }));
     }
