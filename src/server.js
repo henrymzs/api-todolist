@@ -1,10 +1,9 @@
 const http = require('http');
 const taskRoutes = require('./routes/taskRoutes');
+require('dotenv').config();
 
-const server = http.createServer((request, response) => {
-    console.log(`Recebida requisição: ${request.method} ${request.url}`); // testando rotas 
-    // deixa arquivo mais limpo e delega a requisição e condição para o taskRoutes
-    taskRoutes(request, response);
-});
+const PORT = process.env.PORT || 4000;
 
-server.listen(4000, () => console.log("Servidor rodando na porta 4000"));
+const server = http.createServer(taskRoutes);
+
+server.listen(PORT, () => console.log(`✅ Server is running on PORT ${PORT}`));
