@@ -85,9 +85,11 @@ async function createTask(request, response) {
                 "INSERT INTO tasks (uuid, title, description, status) VALUES (UUID(),?, ?, ?)",
                 [title, description, status]
             );
+
+            const [task] = await pool.query("SELECT uuid FROM tasks WHERE id = ?", [result.insertId]);
             
             response.writeHead(201, { "Content-Type": "application/json" });
-            response.end(JSON.stringify({ id: result.insertId, title, description, status }));
+            response.end(JSON.stringify({ uuid: task[0].uuid, title, description, status }));
         });
     } catch (error) { 
         response.writeHead(500, { "Content-Type": "application/json" });
