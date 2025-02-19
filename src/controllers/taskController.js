@@ -1,6 +1,34 @@
 const pool = require('../database/config');
 
 
+async function deleteTask(request, response) {
+
+    const uuid = request.url.split("/")[2];
+
+    if (!uuid) {
+        response.writeHead(400, { "Content-Type": "application/json" });
+        return response.end(JSON.stringify({ message: "UUID é obrigatório" }));
+    }
+
+    try {
+        const [task] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", [uuid]);
+
+        if (task.length === 0) {
+            response.writeHead(404, { "Content-Type": "application/json" });
+            return response.end(JSON.stringify({ message: "Tarefa não encontrada" }));
+        }
+
+        await pool.query("DELETE FROM tasks WHERE uuid = ?", [uuid]);
+
+        response.writeHead(200, { "Content-Type": "application/json" });
+        return response.end(JSON.stringify({ message: "Tarefa deletada com sucesso" }));
+    } catch (error) {
+        response.writeHead(500, { "Content-Type": "application/json" });
+        return response.end(JSON.stringify({ message: "Erro interno do servidor" }));
+    }
+}
+
+
 async function getTaskByUuid(request, response) {
     try {
         const uuid = request.url.split("/")[2];
@@ -67,4 +95,4 @@ async function createTask(request, response) {
     }
 }
 
-module.exports = { getAllTasks, createTask, getTaskByUuid };
+module.exports = { getAllTasks, createTask, getTaskByUuid, deleteTask };

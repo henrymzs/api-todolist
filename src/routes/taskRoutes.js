@@ -20,6 +20,12 @@ function taskRoutes(request, response) {
         console.log("Rota /task/:uuid (GET) acionada");
         return taskController.getTaskByUuid(request, response);
     }
+
+    if (request.url.startsWith("/tasks") && request.method === "DELETE") {
+        console.log("Rota /tasks/:uuid (DELETE) acionada");
+        return taskController.deleteTask(request, response);
+        
+    }
    
     if (request.url === "/tasks" && request.method === "POST") {
         console.log("Rota /tasks (POST) acionada!");
