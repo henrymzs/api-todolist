@@ -206,5 +206,17 @@ chunk.toString() transforma os bytes recebidos em texto legível.
 
 ### fiquei sem saber oque fazer, não sabia se apagava apenas a linha de codigo que eu nao queria e deixava o resto, se era para apagar tudo e deixar apenas a linha que eu queria e por tentativa e erro fiz isso mas continua com erro nas pastas e presumi que esta forma estava errada, com pressa e querendo resolver logo perguntei ao ChatGPT e ele disse que era apenas para deixar a linha que eu queria, fiz isso mesmo com a pasta ficando vermelha indicando que tivesse erro mas segui e no final deu certo, foi a primeira vez que fiz um rebase e algo que parecia tao amedrontador que podia quebrar tudo agora parece tao besta, ou talvez o problema que tive foi besta e a resolução besta e possa ter coisas mais complicadas, enfim resolvendo um problema de cada vez e aprendendo com eles. 
 
+Quando um cliente (por exemplo, um front-end ou um Postman) envia dados no corpo da requisição (body), esses dados não chegam de uma vez só. O Node.js processa essas informações como um fluxo de dados (stream). Isso significa que:
+
+Os dados chegam em pedaços (chunks).
+Precisamos escutar esses pedaços e juntar tudo até que o envio seja concluído.
+Por isso usamos request.on("data") e request.on("end")
+
+request.on("data", (chunk) => {...}) → Captura os pedaços e adiciona ao body.
+request.on("end", () => {...}) → Aguarda até que todos os pedaços cheguem e só então processa os dados.
+
+
+E se não fizermos isso?
+Se tentarmos acessar request.body diretamente sem capturar os dados do fluxo, o Node.js não saberá quais dados estão chegando e a requisição falhará. Como estamos usando Node.js puro (sem Express), não há um middleware que trate isso automaticamente, então precisamos lidar manualmente.
 
 
