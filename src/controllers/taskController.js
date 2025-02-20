@@ -156,4 +156,27 @@ async function createTask(request, response) {
     }
 }
 
-module.exports = { getAllTasks, createTask, getTaskByUuid, deleteTask, updateTask };
+async function toggleTaskCompletion(request, response) {
+    try {
+        const uuid = request.url.split("/")[2];
+
+        const [task] = await pool.query("SELECT status FROM tasks WHERE uuid = ?", [uuid]);
+
+        if (!task.length) {
+            response.writeHead(404, { "Content-Type": "application/json" });
+            return response.end(JSON.stringify({ message: "Tarefa não encontrada" }));
+        }
+
+        const newStatus = task[0].status === "pendente" ? "concluído" : "pendente";
+
+        await pool.query("UPDATE tasks SET status = ?, updated_at = NOW() WHERE uuid = ?", [newStatus, uuid]);
+
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ uuid, newStatus }));
+    } catch (error) {
+        response.writeHead(500, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "Erro ao atualizar status da tarefa"}));
+    }
+}
+
+module.exports = { getAllTasks, createTask, getTaskByUuid, deleteTask, updateTask, toggleTaskCompletion };
