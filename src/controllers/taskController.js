@@ -62,9 +62,6 @@ async function updateTask(request, response) {
     }
 }
 
-
-
-
 async function deleteTask(request, response) {
 
     const uuid = request.url.split("/")[2];
@@ -75,9 +72,9 @@ async function deleteTask(request, response) {
     }
 
     try {
-        const [task] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", [uuid]);
+        const [result] = await pool.query("DELETE FROM tasks WHERE uuid = ?", [uuid]);
 
-        if (task.length === 0) {
+        if (result.affectedRows === 0) {
             response.writeHead(404, { "Content-Type": "application/json" });
             return response.end(JSON.stringify({ message: "Tarefa não encontrada" }));
         }
