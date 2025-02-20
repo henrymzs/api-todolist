@@ -109,7 +109,7 @@ async function getTaskByUuid(request, response) {
         response.end(JSON.stringify(taskWithoutId));
     } catch (error) {
         response.writeHead(500, { "Content-Type": "application/json" });
-        response.end(JSON.stringify({ message: "Erro ao buscar tarefa", error }));
+        response.end(JSON.stringify({ message: "Erro ao buscar tarefa"}));
     }
 }
 
@@ -120,7 +120,7 @@ async function getAllTasks(request, response) {
         response.end(JSON.stringify(tasks));
     } catch (error) {
         response.writeHead(500, { "Content-Type": "application/json" });
-        response.end(JSON.stringify({ message: "Erro ao buscar tarefas", error }));
+        response.end(JSON.stringify({ message: "Erro ao buscar tarefas"}));
     }
 }
 
@@ -152,7 +152,7 @@ async function createTask(request, response) {
         response.end(JSON.stringify({ message: "Tarefa criada com sucesso", title, description, status }));
     } catch (error) {
         response.writeHead(500, { "Content-Type": "application/json" });
-        response.end(JSON.stringify({ message: "Erro ao criar tarefa", error }));
+        response.end(JSON.stringify({ message: "Erro ao criar tarefa" }));
     }
 }
 
