@@ -220,3 +220,67 @@ E se não fizermos isso?
 Se tentarmos acessar request.body diretamente sem capturar os dados do fluxo, o Node.js não saberá quais dados estão chegando e a requisição falhará. Como estamos usando Node.js puro (sem Express), não há um middleware que trate isso automaticamente, então precisamos lidar manualmente.
 
 
+### Porque o MYSQL sempre retorna um objeto ? como isso funciona? 
+
+Quando executamos uma query no MySQL usando a biblioteca do Node.js (mysql2), o banco de dados responde enviando um objeto JavaScript com informações sobre a operação realizada.
+
+Isso acontece porque o MySQL precisa fornecer um retorno estruturado para que o código possa processar os resultados da query de maneira eficiente.
+
+###  Como o MySQL retorna os dados? 
+
+Quando chamamos pool.query(), a função retorna um array com dois elementos: 1️⃣ O primeiro elemento contém o resultado da query (os dados retornados pelo MySQL).
+2️⃣ O segundo elemento contém informações sobre os metadados da query (como colunas e tipos de dados).
+
+Exemplo:
+
+ ```
+const [result, fields] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", [uuid]);
+
+```
+result → Contém os dados retornados pela query.
+fields → Contém os metadados (informações sobre as colunas da tabela).
+No caso de queries UPDATE, DELETE ou INSERT, o result não contém dados da tabela, mas sim um objeto com informações sobre a operação.
+
+Exemplo de retorno para SELECT
+Se tivermos uma tabela tasks com essa estrutura:
+CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    uuid VARCHAR(36) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL
+);
+
+E executarmos essa query:
+const [result] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", ["123e4567-e89b-12d3-a456-426614174000"]);
+console.log(result);
+O MySQL pode retornar um array assim:
+[
+  {
+    "id": 1,
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "title": "Fazer compras",
+    "status": "pendente"
+  }
+]
+Por que retorna um array?
+Porque uma query SELECT pode trazer múltiplas linhas, então o resultado sempre será um array, mesmo que retorne apenas um objeto.
+
+ Exemplo de retorno para DELETE
+Agora, se fizermos um DELETE:
+const [result] = await pool.query("DELETE FROM tasks WHERE uuid = ?", ["123e4567-e89b-12d3-a456-426614174000"]);
+console.log(result);
+O retorno será um objeto assim:
+{
+  "fieldCount": 0,
+  "affectedRows": 1,
+  "insertId": 0,
+  "serverStatus": 2,
+  "warningCount": 0,
+  "message": "",
+  "protocol41": true,
+  "changedRows": 0
+}
+"affectedRows": 1 → Uma linha foi deletada.
+"affectedRows": 0 → Nenhuma linha foi deletada (UUID não encontrado).
+"insertId": 0 → Não há inserção, então o valor é 0.
+"serverStatus": 2 → Indica que o servidor MySQL processou a query com sucesso.
