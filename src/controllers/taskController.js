@@ -53,12 +53,12 @@ async function updateTask(request, response) {
                 response.end(JSON.stringify({ message: "Tarefa atualizada com sucesso" }));
             } catch (error) {
                 response.writeHead(500, { "Content-Type": "application/json" });
-                response.end(JSON.stringify({ message: "Erro ao atualizar tarefa", error }));
+                response.end(JSON.stringify({ message: "Erro ao atualizar tarefa"}));
             }
         });
     } catch (error) {
         response.writeHead(500, { "Content-Type": "application/json" });
-        response.end(JSON.stringify({ message: "Erro interno do servidor", error }));
+        response.end(JSON.stringify({ message: "Erro interno do servidor"}));
     }
 }
 
@@ -97,7 +97,7 @@ async function getTaskByUuid(request, response) {
             return response.end(JSON.stringify({ message: "UUID é obrigatório" }))
         }
 
-        const [tasks] = await pool.query("SELECT * FROM tasks WHERE uuid = ? LIMIT 1", [uuid]);
+        const [tasks] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", [uuid]);
 
         if (!tasks.length) {
             response.writeHead(404, { "Content-Type": "application/json" });
@@ -126,31 +126,31 @@ async function getAllTasks(request, response) {
 
 async function createTask(request, response) {
     try {
-        let body = "";
-
-        request.on("data", (chunk) => {
-            body += chunk.toString();
+        let body = await new Promise((resolve) => {
+            let data = "";
+            request.on("data", (chunk) => (data += chunk.toString()));
+            request.on("end", () => resolve(data));
         });
 
-        request.on("end", async () => {
-            const { title, description, status } = JSON.parse(body);
+        const { title, description, status } = JSON.parse(body);
 
-            if (!title || !description || !status) {
-                response.writeHead(400, { "Content-Type": "application/json" });
-                return response.end(JSON.stringify({ message: "Todos os campos são obrigatórios" }))
-            }
+        if (
+            typeof title !== "string" || !title.trim() ||
+            typeof description !== "string" || !description.trim() ||
+            typeof status !== "string" || !status.trim()
+        ) {
+            response.writeHead(400, { "Content-Type": "application/json" });
+            return response.end(JSON.stringify({ message: "Todos os campos são obrigatórios e devem ser strings válidas" }));
+        }
 
-            const [result] = await pool.query(
-                "INSERT INTO tasks (uuid, title, description, status) VALUES (UUID(),?, ?, ?)",
-                [title, description, status]
-            );
+        await pool.query(
+            "INSERT INTO tasks (uuid, title, description, status) VALUES (UUID(), ?, ?, ?)",
+            [title, description, status]
+        );
 
-            const [task] = await pool.query("SELECT uuid FROM tasks WHERE id = ?", [result.insertId]);
-            
-            response.writeHead(201, { "Content-Type": "application/json" });
-            response.end(JSON.stringify({ uuid: task[0].uuid, title, description, status }));
-        });
-    } catch (error) { 
+        response.writeHead(201, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "Tarefa criada com sucesso", title, description, status }));
+    } catch (error) {
         response.writeHead(500, { "Content-Type": "application/json" });
         response.end(JSON.stringify({ message: "Erro ao criar tarefa", error }));
     }

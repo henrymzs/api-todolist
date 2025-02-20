@@ -284,3 +284,40 @@ O retorno será um objeto assim:
 "affectedRows": 0 → Nenhuma linha foi deletada (UUID não encontrado).
 "insertId": 0 → Não há inserção, então o valor é 0.
 "serverStatus": 2 → Indica que o servidor MySQL processou a query com sucesso.
+
+### if (!task.length) é o mesmo que if (task.length === 0)?
+
+Sim! Sempre que houver if (variável.length === 0), você pode simplificar para if (!variável.length).
+
+Isso acontece porque em JavaScript:
+
+0 é um valor falsy
+!task.length equivale a task.length === 0
+Antes (mais verboso):
+if (task.length === 0) 
+
+Depois (mais limpo e performático):
+if (!task.length) 
+
+ O que significa ! (operador NOT)?
+O ! em JavaScript inverte um valor booleano:
+
+Ou seja:
+
+!variável retorna true se a variável for falsy (0, null, undefined, "", false, NaN)
+!!variável converte qualquer valor para booleano
+Exemplo: !!"texto" retorna true
+
+ Posso usar ! sempre no lugar de === 0?
+  Sim, se estiver verificando arrays, strings ou números, pois 0 sempre será falsy.
+🔹 Mas cuidado com objetos! Objetos vazios ({}) e arrays vazios ([]) são truthy em JavaScript.
+ Exemplo perigoso:
+ const obj = {};
+if (!obj) { 
+    console.log("Objeto vazio!"); // ❌ Isso NUNCA será executado! 
+}
+
+Para checar um objeto vazio corretamente:
+if (Object.keys(obj).length === 0) { 
+    console.log("Objeto vazio!"); // ✅ Correto 
+}
