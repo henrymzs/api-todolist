@@ -10,6 +10,11 @@ function taskRoutes(request, response) {
             status: "ok"
         }));
     }
+    
+    if (request.url.startsWith("/tasks/") && request.method === "PUT") {
+        console.log("Rota /tasks/:uuid (PUT) acionada");
+        return taskController.updateTask(request, response);
+    }
 
     if (request.url === "/tasks" && request.method === "GET") {
         console.log("Rota /tasks (GET) acionada!");

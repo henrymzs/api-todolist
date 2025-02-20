@@ -1,5 +1,69 @@
 const pool = require('../database/config');
 
+async function updateTask(request, response) {
+    try {
+        const uuid = request.url.split("/")[2];
+        if (!uuid) {
+            response.writeHead(400, { "Content-Type": "application/json" });
+            return response.end(JSON.stringify({ message: "UUID é obrigatório" }));
+        }
+
+        let body = "";
+        request.on("data", (chunk) => {
+            body += chunk.toString();
+        });
+
+        request.on("end", async () => {
+            try {
+                if (!body) {
+                    response.writeHead(400, { "Content-Type": "application/json" });
+                    return response.end(JSON.stringify({ message: "Nenhum campo enviado para atualização" }));
+                }
+                
+                const parsedBody = JSON.parse(body);
+                const allowedFields = ["title", "description", "status"];
+                const fieldsToUpdate = {};
+
+                for (const key in parsedBody) {
+                    if (allowedFields.includes(key) && parsedBody[key]) {
+                        fieldsToUpdate[key] = parsedBody[key];
+                    }
+                }
+                
+                if (Object.keys(fieldsToUpdate).length === 0) {
+                    response.writeHead(400, { "Content-Type": "application/json" });
+                    return response.end(JSON.stringify({ message: "Nenhum campo válido para atualização" }));
+                }
+                
+                const [task] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", [uuid]);
+                if (task.length === 0) {
+                    response.writeHead(404, { "Content-Type": "application/json" });
+                    return response.end(JSON.stringify({ message: "Tarefa não encontrada" }));
+                }
+                
+                const updateFieldsQuery = Object.keys(fieldsToUpdate).map(field => `${field} = ?`).join(", ");
+                const queryValues = [...Object.values(fieldsToUpdate), uuid];
+                
+                await pool.query(
+                    `UPDATE tasks SET ${updateFieldsQuery}, updated_at = NOW() WHERE uuid = ?`,
+                    queryValues
+                );
+                
+                response.writeHead(200, { "Content-Type": "application/json" });
+                response.end(JSON.stringify({ message: "Tarefa atualizada com sucesso" }));
+            } catch (error) {
+                response.writeHead(500, { "Content-Type": "application/json" });
+                response.end(JSON.stringify({ message: "Erro ao atualizar tarefa", error }));
+            }
+        });
+    } catch (error) {
+        response.writeHead(500, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "Erro interno do servidor", error }));
+    }
+}
+
+
+
 
 async function deleteTask(request, response) {
 
@@ -97,4 +161,4 @@ async function createTask(request, response) {
     }
 }
 
-module.exports = { getAllTasks, createTask, getTaskByUuid, deleteTask };
+module.exports = { getAllTasks, createTask, getTaskByUuid, deleteTask, updateTask };
