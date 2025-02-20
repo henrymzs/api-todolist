@@ -30,13 +30,13 @@ async function updateTask(request, response) {
                     }
                 }
                 
-                if (Object.keys(fieldsToUpdate).length === 0) {
+                if (!Object.keys(fieldsToUpdate).length) {
                     response.writeHead(400, { "Content-Type": "application/json" });
                     return response.end(JSON.stringify({ message: "Nenhum campo válido para atualização" }));
                 }
                 
                 const [task] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", [uuid]);
-                if (task.length === 0) {
+                if (!task.length) {
                     response.writeHead(404, { "Content-Type": "application/json" });
                     return response.end(JSON.stringify({ message: "Tarefa não encontrada" }));
                 }
@@ -74,12 +74,10 @@ async function deleteTask(request, response) {
     try {
         const [result] = await pool.query("DELETE FROM tasks WHERE uuid = ?", [uuid]);
 
-        if (result.affectedRows === 0) {
+        if (!result.affectedRows) {
             response.writeHead(404, { "Content-Type": "application/json" });
             return response.end(JSON.stringify({ message: "Tarefa não encontrada" }));
         }
-
-        await pool.query("DELETE FROM tasks WHERE uuid = ?", [uuid]);
 
         response.writeHead(200, { "Content-Type": "application/json" });
         return response.end(JSON.stringify({ message: "Tarefa deletada com sucesso" }));
@@ -99,9 +97,9 @@ async function getTaskByUuid(request, response) {
             return response.end(JSON.stringify({ message: "UUID é obrigatório" }))
         }
 
-        const [tasks] = await pool.query("SELECT * FROM tasks WHERE uuid = ?", [uuid]);
+        const [tasks] = await pool.query("SELECT * FROM tasks WHERE uuid = ? LIMIT 1", [uuid]);
 
-        if (tasks.length === 0) {
+        if (!tasks.length) {
             response.writeHead(404, { "Content-Type": "application/json" });
             return response.end(JSON.stringify({ message: "Tarefa não encontrada" }));
         }
